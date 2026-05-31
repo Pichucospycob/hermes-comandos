@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<!-- saved from url=(0025)http://2.25.136.106:8082/ -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comandos de Hermes Agent</title>
+    <style>
+        :root {
+            --bg: #0f0f14;
+            --surface: #1a1a24;
+            --border: #2a2a3a;
+            --text: #e0e0e8;
+            --muted: #8888a0;
+            --accent: #7c6af0;
+            --accent2: #5eead4;
+            --green: #4ade80;
+            --yellow: #fbbf24;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+        h2 {
+            color: var(--accent2);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .cmd {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .cmd code {
+            background: #2a2a3a;
+            color: var(--accent);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+        .cmd p {
+            color: var(--muted);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .flags { margin-top: 0.5rem; }
+        .flags code {
+            background: #2a2a3a;
+            color: var(--green);
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        th { background: var(--surface); color: var(--accent2); }
+        tr:nth-child(even) { background: var(--surface); }
+        .col-cmd { color: var(--accent); font-family: monospace; }
+        .col-desc { color: var(--text); }
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            table { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>⚡ Hermes Agent — Comandos</h1>
+<p class="subtitle">Referencia completa de CLI y comandos de sesión</p>
+
+<!-- CLI REFERENCE -->
+<h2>📌 Referencia CLI</h2>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Flags Globales</h3>
+<div class="cmd">
+<code>hermes [flags] [command]</code>
+<p>Todos los comandos aceptan estos flags:</p>
+<div class="flags">
+<code>--version, -V</code> Mostrar versión &nbsp;
+<code>--resume, -r SESSION</code> Reanudar sesión por ID o título &nbsp;
+<code>--continue, -c [NAME]</code> Reanudar por nombre o la más reciente &nbsp;
+<code>--worktree, -w</code> Modo worktree git aislado (agentes paralelo) &nbsp;
+<code>--skills, -s SKILL</code> Precargar skills (separar con coma) &nbsp;
+<code>--profile, -p NAME</code> Usar perfil con nombre &nbsp;
+<code>--yolo</code> Saltar aprobación de comandos peligrosos &nbsp;
+<code>--pass-session-id</code> Incluir ID de sesión en el system prompt
+</div>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Chat</h3>
+<div class="cmd">
+<code>hermes chat [flags]</code>
+<p>Modo interactivo de chat. Sin subcomando usa chat por defecto.</p>
+<div class="flags">
+<code>-q, --query TEXT</code> Consulta única, no interactiva &nbsp;
+<code>-m, --model MODEL</code> Modelo (ej: anthropic/claude-sonnet-4) &nbsp;
+<code>-t, --toolsets LIST</code> Lista de toolsets separada por comas &nbsp;
+<code>--provider PROVIDER</code> Forzar provider (openrouter, anthropic, etc.) &nbsp;
+<code>-v, --verbose</code> Salida verbosa &nbsp;
+<code>-Q, --quiet</code> Suprimir banner y spinner &nbsp;
+<code>--checkpoints</code> Habilitar checkpoints de sistema de archivos (/rollback) &nbsp;
+<code>--source TAG</code> Tag de origen de sesión (default: cli)
+</div>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Configuración</h3>
+<div class="cmd">
+<code>hermes setup [section]</code>
+<p>Asistente interactivo: modelo, terminal, gateway, herramientas, agente.</p>
+</div>
+<div class="cmd">
+<code>hermes model</code>
+<p>Selector interactivo de modelo y provider.</p>
+</div>
+<div class="cmd">
+<code>hermes config</code>
+<p>Ver configuración actual.</p>
+</div>
+<div class="cmd">
+<code>hermes config edit</code>
+<p>Abrir config.yaml en $EDITOR.</p>
+</div>
+<div class="cmd">
+<code>hermes config set KEY VAL</code>
+<p>Establecer un valor de configuración.</p>
+</div>
+<div class="cmd">
+<code>hermes config path</code>
+<p>Mostrar ruta de config.yaml.</p>
+</div>
+<div class="cmd">
+<code>hermes config env-path</code>
+<p>Mostrar ruta de .env.</p>
+</div>
+<div class="cmd">
+<code>hermes config check</code>
+<p>Verificar config faltante o desactualizada.</p>
+</div>
+<div class="cmd">
+<code>hermes config migrate</code>
+<p>Actualizar config con nuevas opciones.</p>
+</div>
+<div class="cmd">
+<code>hermes login [--provider P]</code>
+<p>Login OAuth (nous, openai-codex).</p>
+</div>
+<div class="cmd">
+<code>hermes logout</code>
+<p>Limpiar credenciales almacenadas.</p>
+</div>
+<div class="cmd">
+<code>hermes doctor [--fix]</code>
+<p>Verificar dependencias y configuración.</p>
+</div>
+<div class="cmd">
+<code>hermes status [--all]</code>
+<p>Mostrar estado de componentes.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Herramientas y Skills</h3>
+<div class="cmd">
+<code>hermes tools</code>
+<p>UI interactiva (curses) para habilitar/deshabilitar herramientas.</p>
+</div>
+<div class="cmd">
+<code>hermes tools list</code>
+<p>Mostrar todas las herramientas y su estado.</p>
+</div>
+<div class="cmd">
+<code>hermes tools enable NAME</code>
+<p>Habilitar un toolset.</p>
+</div>
+<div class="cmd">
+<code>hermes tools disable NAME</code>
+<p>Deshabilitar un toolset.</p>
+</div>
+<div class="cmd">
+<code>hermes skills list</code>
+<p>Listar skills instalados.</p>
+</div>
+<div class="cmd">
+<code>hermes skills search QUERY</code>
+<p>Buscar en el catálogo de skills.</p>
+</div>
+<div class="cmd">
+<code>hermes skills install ID</code>
+<p>Instalar un skill (ID puede ser hub identifier o URL directa a SKILL.md).</p>
+</div>
+<div class="cmd">
+<code>hermes skills inspect ID</code>
+<p>Vista previa sin instalar.</p>
+</div>
+<div class="cmd">
+<code>hermes skills config</code>
+<p>Habilitar/deshabilitar skills por plataforma.</p>
+</div>
+<div class="cmd">
+<code>hermes skills check</code>
+<p>Buscar actualizaciones.</p>
+</div>
+<div class="cmd">
+<code>hermes skills update</code>
+<p>Actualizar skills desactualizados.</p>
+</div>
+<div class="cmd">
+<code>hermes skills uninstall N</code>
+<p>Eliminar un skill del hub.</p>
+</div>
+<div class="cmd">
+<code>hermes skills publish PATH</code>
+<p>Publicar en el registro.</p>
+</div>
+<div class="cmd">
+<code>hermes skills browse</code>
+<p>Explorar todos los skills disponibles.</p>
+</div>
+<div class="cmd">
+<code>hermes skills tap add REPO</code>
+<p>Añadir un repositorio GitHub como fuente de skills.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Servidores MCP</h3>
+<div class="cmd">
+<code>hermes mcp serve</code>
+<p>Ejecutar Hermes como servidor MCP.</p>
+</div>
+<div class="cmd">
+<code>hermes mcp add NAME</code>
+<p>Añadir servidor MCP (--url o --command).</p>
+</div>
+<div class="cmd">
+<code>hermes mcp remove NAME</code>
+<p>Eliminar servidor MCP.</p>
+</div>
+<div class="cmd">
+<code>hermes mcp list</code>
+<p>Listar servidores configurados.</p>
+</div>
+<div class="cmd">
+<code>hermes mcp test NAME</code>
+<p>Probar conexión.</p>
+</div>
+<div class="cmd">
+<code>hermes mcp configure NAME</code>
+<p>Alternar selección de herramientas.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Gateway (Plataformas de Mensajería)</h3>
+<div class="cmd">
+<code>hermes gateway run</code>
+<p>Iniciar gateway en primer plano.</p>
+</div>
+<div class="cmd">
+<code>hermes gateway install</code>
+<p>Instalar como servicio en segundo plano.</p>
+</div>
+<div class="cmd">
+<code>hermes gateway start/stop</code>
+<p>Controlar el servicio.</p>
+</div>
+<div class="cmd">
+<code>hermes gateway restart</code>
+<p>Reiniciar el servicio.</p>
+</div>
+<div class="cmd">
+<code>hermes gateway status</code>
+<p>Verificar estado.</p>
+</div>
+<div class="cmd">
+<code>hermes gateway setup</code>
+<p>Configurar plataformas.</p>
+</div>
+<p style="color:var(--muted);margin:0.5rem 0 1rem;font-size:0.85rem;">
+Plataformas soportadas: Telegram, Discord, Slack, WhatsApp, Signal, Email, SMS, Matrix, Mattermost, Home Assistant, DingTalk, Feishu, WeCom, BlueBubbles (iMessage), Weixin (WeChat), API Server, Webhooks.
+</p>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Sesiones</h3>
+<div class="cmd">
+<code>hermes sessions list</code>
+<p>Listar sesiones recientes.</p>
+</div>
+<div class="cmd">
+<code>hermes sessions browse</code>
+<p>Selector interactivo.</p>
+</div>
+<div class="cmd">
+<code>hermes sessions export OUT</code>
+<p>Exportar a JSONL.</p>
+</div>
+<div class="cmd">
+<code>hermes sessions rename ID T</code>
+<p>Renombrar sesión.</p>
+</div>
+<div class="cmd">
+<code>hermes sessions delete ID</code>
+<p>Eliminar sesión.</p>
+</div>
+<div class="cmd">
+<code>hermes sessions prune</code>
+<p>Limpiar sesiones antiguas (--older-than N días).</p>
+</div>
+<div class="cmd">
+<code>hermes sessions stats</code>
+<p>Estadísticas del almacén de sesiones.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Tareas Programadas (Cron)</h3>
+<div class="cmd">
+<code>hermes cron list</code>
+<p>Listar trabajos (--all para ver deshabilitados).</p>
+</div>
+<div class="cmd">
+<code>hermes cron create SCHED</code>
+<p>Crear: '30m', 'every 2h', '0 9 * * *'.</p>
+</div>
+<div class="cmd">
+<code>hermes cron edit ID</code>
+<p>Editar schedule, prompt, entrega.</p>
+</div>
+<div class="cmd">
+<code>hermes cron pause/resume ID</code>
+<p>Controlar estado del trabajo.</p>
+</div>
+<div class="cmd">
+<code>hermes cron run ID</code>
+<p>Disparar en el siguiente tick.</p>
+</div>
+<div class="cmd">
+<code>hermes cron remove ID</code>
+<p>Eliminar trabajo.</p>
+</div>
+<div class="cmd">
+<code>hermes cron status</code>
+<p>Estado del planificador.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Webhooks</h3>
+<div class="cmd">
+<code>hermes webhook subscribe N</code>
+<p>Crear ruta en /webhooks/&lt;name&gt;.</p>
+</div>
+<div class="cmd">
+<code>hermes webhook list</code>
+<p>Listar suscripciones.</p>
+</div>
+<div class="cmd">
+<code>hermes webhook remove NAME</code>
+<p>Eliminar suscripción.</p>
+</div>
+<div class="cmd">
+<code>hermes webhook test NAME</code>
+<p>Enviar un POST de prueba.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Perfiles</h3>
+<div class="cmd">
+<code>hermes profile list</code>
+<p>Listar todos los perfiles.</p>
+</div>
+<div class="cmd">
+<code>hermes profile create NAME</code>
+<p>Crear (--clone, --clone-all, --clone-from).</p>
+</div>
+<div class="cmd">
+<code>hermes profile use NAME</code>
+<p>Establecer como predeterminado.</p>
+</div>
+<div class="cmd">
+<code>hermes profile delete NAME</code>
+<p>Eliminar perfil.</p>
+</div>
+<div class="cmd">
+<code>hermes profile show NAME</code>
+<p>Mostrar detalles.</p>
+</div>
+<div class="cmd">
+<code>hermes profile alias NAME</code>
+<p>Gestionar scripts wrapper.</p>
+</div>
+<div class="cmd">
+<code>hermes profile rename A B</code>
+<p>Renombrar perfil.</p>
+</div>
+<div class="cmd">
+<code>hermes profile export NAME</code>
+<p>Exportar a tar.gz.</p>
+</div>
+<div class="cmd">
+<code>hermes profile import FILE</code>
+<p>Importar desde archivo.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Credenciales</h3>
+<div class="cmd">
+<code>hermes auth add</code>
+<p>Asistente interactivo de credenciales.</p>
+</div>
+<div class="cmd">
+<code>hermes auth list [PROVIDER]</code>
+<p>Listar credenciales en pool.</p>
+</div>
+<div class="cmd">
+<code>hermes auth remove P INDEX</code>
+<p>Eliminar por provider + índice.</p>
+</div>
+<div class="cmd">
+<code>hermes auth reset PROVIDER</code>
+<p>Limpiar estado de agotamiento.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Otros</h3>
+<div class="cmd">
+<code>hermes insights [--days N]</code>
+<p>Analítica de uso.</p>
+</div>
+<div class="cmd">
+<code>hermes update</code>
+<p>Actualizar a la última versión.</p>
+</div>
+<div class="cmd">
+<code>hermes pairing list/approve/revoke</code>
+<p>Autorización de MD.</p>
+</div>
+<div class="cmd">
+<code>hermes plugins list/install/remove</code>
+<p>Gestión de plugins.</p>
+</div>
+<div class="cmd">
+<code>hermes honcho setup/status</code>
+<p>Integración de memoria Honcho.</p>
+</div>
+<div class="cmd">
+<code>hermes memory setup/status/off</code>
+<p>Configuración del provider de memoria.</p>
+</div>
+<div class="cmd">
+<code>hermes completion bash|zsh</code>
+<p>Completado de shell.</p>
+</div>
+<div class="cmd">
+<code>hermes acp</code>
+<p>Servidor ACP (integración IDE).</p>
+</div>
+<div class="cmd">
+<code>hermes claw migrate</code>
+<p>Migrar desde OpenClaw.</p>
+</div>
+<div class="cmd">
+<code>hermes uninstall</code>
+<p>Desinstalar Hermes.</p>
+</div>
+
+<!-- SLASH COMMANDS -->
+<h2>⌨️ Comandos de Sesión (Slash Commands)</h2>
+<p style="color:var(--muted);margin-bottom:1rem;">Escribe estos durante una sesión de chat interactiva.</p>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Control de Sesión</h3>
+<div class="cmd">
+<code>/new</code> <span class="badge">alias: /reset</span>
+<p>Sesión nueva limpia.</p>
+</div>
+<div class="cmd">
+<code>/clear</code>
+<p>Limpiar pantalla + nueva sesión (CLI).</p>
+</div>
+<div class="cmd">
+<code>/retry</code>
+<p>Reenviar último mensaje.</p>
+</div>
+<div class="cmd">
+<code>/undo</code>
+<p>Eliminar último intercambio.</p>
+</div>
+<div class="cmd">
+<code>/title [name]</code>
+<p>Nombrar la sesión.</p>
+</div>
+<div class="cmd">
+<code>/compress</code>
+<p>Comprimir contexto manualmente.</p>
+</div>
+<div class="cmd">
+<code>/stop</code>
+<p>Matar procesos en segundo plano.</p>
+</div>
+<div class="cmd">
+<code>/rollback [N]</code>
+<p>Restaurar checkpoint del sistema de archivos.</p>
+</div>
+<div class="cmd">
+<code>/snapshot [sub]</code>
+<p>Crear o restaurar snapshots del estado de Hermes (CLI).</p>
+</div>
+<div class="cmd">
+<code>/background &lt;prompt&gt;</code>
+<p>Ejecutar prompt en segundo plano.</p>
+</div>
+<div class="cmd">
+<code>/queue &lt;prompt&gt;</code>
+<p>Encolar para el siguiente turno.</p>
+</div>
+<div class="cmd">
+<code>/steer &lt;prompt&gt;</code>
+<p>Inyectar mensaje después del siguiente tool call sin interrumpir.</p>
+</div>
+<div class="cmd">
+<code>/agents</code> <span class="badge">alias: /tasks</span>
+<p>Mostrar agentes activos y tareas en ejecución.</p>
+</div>
+<div class="cmd">
+<code>/resume [name]</code>
+<p>Reanudar sesión con nombre.</p>
+</div>
+<div class="cmd">
+<code>/goal [text|sub]</code>
+<p>Establecer meta persistente (subcommands: status, pause, resume, clear).</p>
+</div>
+<div class="cmd">
+<code>/redraw</code>
+<p>Forzar repintado completo de la UI (CLI).</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Configuración</h3>
+<div class="cmd">
+<code>/config</code>
+<p>Mostrar configuración (CLI).</p>
+</div>
+<div class="cmd">
+<code>/model [name]</code>
+<p>Mostrar o cambiar modelo.</p>
+</div>
+<div class="cmd">
+<code>/personality [name]</code>
+<p>Establecer personalidad.</p>
+</div>
+<div class="cmd">
+<code>/reasoning [level]</code>
+<p>Establecer razonamiento (none|minimal|low|medium|high|xhigh|show|hide).</p>
+</div>
+<div class="cmd">
+<code>/verbose</code>
+<p>Ciclar: off → new → all → verbose.</p>
+</div>
+<div class="cmd">
+<code>/voice [on|off|tts]</code>
+<p>Modo voz.</p>
+</div>
+<div class="cmd">
+<code>/yolo</code>
+<p>Alternar bypass de aprobación.</p>
+</div>
+<div class="cmd">
+<code>/busy [sub]</code>
+<p>Controlar qué hace Enter mientras Hermes trabaja (CLI). Subcommands: queue, steer, interrupt, status.</p>
+</div>
+<div class="cmd">
+<code>/indicator [style]</code>
+<p>Elegir estilo de indicador de ocupado (CLI). Estilos: kaomoji, emoji, unicode, ascii.</p>
+</div>
+<div class="cmd">
+<code>/footer [on|off]</code>
+<p>Alternar metadata del gateway en respuestas finales.</p>
+</div>
+<div class="cmd">
+<code>/skin [name]</code>
+<p>Cambiar tema (CLI).</p>
+</div>
+<div class="cmd">
+<code>/statusbar</code>
+<p>Alternar barra de estado (CLI).</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Herramientas y Skills</h3>
+<div class="cmd">
+<code>/tools</code>
+<p>Gestionar herramientas (CLI).</p>
+</div>
+<div class="cmd">
+<code>/toolsets</code>
+<p>Listar toolsets (CLI).</p>
+</div>
+<div class="cmd">
+<code>/skills</code>
+<p>Buscar/instalar skills (CLI).</p>
+</div>
+<div class="cmd">
+<code>/skill &lt;name&gt;</code>
+<p>Cargar skill en la sesión.</p>
+</div>
+<div class="cmd">
+<code>/reload-skills</code>
+<p>Re-escanear ~/.hermes/skills/.</p>
+</div>
+<div class="cmd">
+<code>/reload</code>
+<p>Recargar variables .env en la sesión (CLI).</p>
+</div>
+<div class="cmd">
+<code>/reload-mcp</code>
+<p>Recargar servidores MCP.</p>
+</div>
+<div class="cmd">
+<code>/cron</code>
+<p>Gestionar trabajos cron (CLI).</p>
+</div>
+<div class="cmd">
+<code>/curator [sub]</code>
+<p>Mantenimiento de skills en segundo plano (status, run, pin, archive…).</p>
+</div>
+<div class="cmd">
+<code>/kanban [sub]</code>
+<p>Tablero de colaboración multi-perfil (tareas, links, comentarios).</p>
+</div>
+<div class="cmd">
+<code>/plugins</code>
+<p>Listar plugins (CLI).</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Gateway</h3>
+<div class="cmd">
+<code>/approve</code>
+<p>Aprobar comando pendiente (gateway).</p>
+</div>
+<div class="cmd">
+<code>/deny</code>
+<p>Denegar comando pendiente (gateway).</p>
+</div>
+<div class="cmd">
+<code>/restart</code>
+<p>Reiniciar gateway (gateway).</p>
+</div>
+<div class="cmd">
+<code>/sethome</code>
+<p>Establecer chat actual como canal home (gateway).</p>
+</div>
+<div class="cmd">
+<code>/update</code>
+<p>Actualizar Hermes a la última (gateway).</p>
+</div>
+<div class="cmd">
+<code>/topic [sub]</code>
+<p>Habilitar o inspeccionar topics de sesiones DM en Telegram (gateway).</p>
+</div>
+<div class="cmd">
+<code>/platforms</code> <span class="badge">alias: /gateway</span>
+<p>Mostrar estado de conexión de plataformas (gateway).</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Utilidades</h3>
+<div class="cmd">
+<code>/branch</code> <span class="badge">alias: /fork</span>
+<p>Bifurcar la sesión actual.</p>
+</div>
+<div class="cmd">
+<code>/fast</code>
+<p>Alternar procesamiento prioritario/rápido.</p>
+</div>
+<div class="cmd">
+<code>/browser</code>
+<p>Abrir conexión CDP del navegador.</p>
+</div>
+<div class="cmd">
+<code>/history</code>
+<p>Mostrar historial de conversación (CLI).</p>
+</div>
+<div class="cmd">
+<code>/save</code>
+<p>Guardar conversación en archivo (CLI).</p>
+</div>
+<div class="cmd">
+<code>/copy [N]</code>
+<p>Copiar última respuesta al portapapeles (CLI).</p>
+</div>
+<div class="cmd">
+<code>/paste</code>
+<p>Adjuntar imagen del portapapeles (CLI).</p>
+</div>
+<div class="cmd">
+<code>/image</code>
+<p>Adjuntar archivo de imagen local (CLI).</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Información</h3>
+<div class="cmd">
+<code>/help</code>
+<p>Mostrar comandos.</p>
+</div>
+<div class="cmd">
+<code>/commands [page]</code>
+<p>Explorar todos los comandos (gateway).</p>
+</div>
+<div class="cmd">
+<code>/usage</code>
+<p>Uso de tokens.</p>
+</div>
+<div class="cmd">
+<code>/insights [days]</code>
+<p>Analítica de uso.</p>
+</div>
+<div class="cmd">
+<code>/gquota</code>
+<p>Mostrar uso de cuota de Google Gemini Code Assist (CLI).</p>
+</div>
+<div class="cmd">
+<code>/status</code>
+<p>Info de sesión (gateway).</p>
+</div>
+<div class="cmd">
+<code>/profile</code>
+<p>Información del perfil activo.</p>
+</div>
+<div class="cmd">
+<code>/debug</code>
+<p>Subir reporte de debug (info del sistema + logs) y obtener enlaces compartibles.</p>
+</div>
+
+<h3 style="color:var(--muted);margin:1.5rem 0 0.5rem;">Salir</h3>
+<div class="cmd">
+<code>/quit</code> <span class="badge">alias: /exit, /q</span>
+<p>Salir de CLI.</p>
+</div>
+
+<!-- PROVIDERS -->
+<h2>☁️ Providers</h2>
+<table>
+    <tbody><tr><th>Provider</th><th>Auth</th><th>Variable de entorno</th></tr>
+    <tr><td class="col-cmd">OpenRouter</td><td>API key</td><td class="col-desc">OPENROUTER_API_KEY</td></tr>
+    <tr><td class="col-cmd">Anthropic</td><td>API key</td><td class="col-desc">ANTHROPIC_API_KEY</td></tr>
+    <tr><td class="col-cmd">Nous Portal</td><td>OAuth</td><td class="col-desc">hermes auth</td></tr>
+    <tr><td class="col-cmd">OpenAI Codex</td><td>OAuth</td><td class="col-desc">hermes auth</td></tr>
+    <tr><td class="col-cmd">GitHub Copilot</td><td>Token</td><td class="col-desc">COPILOT_GITHUB_TOKEN</td></tr>
+    <tr><td class="col-cmd">Google Gemini</td><td>API key</td><td class="col-desc">GOOGLE_API_KEY o GEMINI_API_KEY</td></tr>
+    <tr><td class="col-cmd">DeepSeek</td><td>API key</td><td class="col-desc">DEEPSEEK_API_KEY</td></tr>
+    <tr><td class="col-cmd">xAI / Grok</td><td>API key</td><td class="col-desc">XAI_API_KEY</td></tr>
+    <tr><td class="col-cmd">Hugging Face</td><td>Token</td><td class="col-desc">HF_TOKEN</td></tr>
+    <tr><td class="col-cmd">Z.AI / GLM</td><td>API key</td><td class="col-desc">GLM_API_KEY</td></tr>
+    <tr><td class="col-cmd">MiniMax</td><td>API key</td><td class="col-desc">MINIMAX_API_KEY</td></tr>
+    <tr><td class="col-cmd">MiniMax CN</td><td>API key</td><td class="col-desc">MINIMAX_CN_API_KEY</td></tr>
+    <tr><td class="col-cmd">Kimi / Moonshot</td><td>API key</td><td class="col-desc">KIMI_API_KEY</td></tr>
+    <tr><td class="col-cmd">Alibaba / DashScope</td><td>API key</td><td class="col-desc">DASHSCOPE_API_KEY</td></tr>
+    <tr><td class="col-cmd">Xiaomi MiMo</td><td>API key</td><td class="col-desc">XIAOMI_API_KEY</td></tr>
+    <tr><td class="col-cmd">Kilo Code</td><td>API key</td><td class="col-desc">KILOCODE_API_KEY</td></tr>
+    <tr><td class="col-cmd">AI Gateway (Vercel)</td><td>API key</td><td class="col-desc">AI_GATEWAY_API_KEY</td></tr>
+    <tr><td class="col-cmd">OpenCode Zen</td><td>API key</td><td class="col-desc">OPENCODE_ZEN_API_KEY</td></tr>
+    <tr><td class="col-cmd">OpenCode Go</td><td>API key</td><td class="col-desc">OPENCODE_GO_API_KEY</td></tr>
+    <tr><td class="col-cmd">Qwen OAuth</td><td>OAuth</td><td class="col-desc">hermes login --provider qwen-oauth</td></tr>
+    <tr><td class="col-cmd">Custom endpoint</td><td>Config</td><td class="col-desc">model.base_url + model.api_key en config.yaml</td></tr>
+    <tr><td class="col-cmd">GitHub Copilot ACP</td><td>External</td><td class="col-desc">COPILOT_CLI_PATH o Copilot CLI</td></tr>
+</tbody></table>
+
+<!-- TOOLSETS -->
+<h2>🧰 Toolsets</h2>
+<table>
+    <tbody><tr><th>Toolset</th><th>Descripción</th></tr>
+    <tr><td class="col-cmd">web</td><td class="col-desc">Búsqueda web y extracción de contenido</td></tr>
+    <tr><td class="col-cmd">search</td><td class="col-desc">Solo búsqueda web (subconjunto de web)</td></tr>
+    <tr><td class="col-cmd">browser</td><td class="col-desc">Automatización de navegador (Browserbase, Camofox o Chromium local)</td></tr>
+    <tr><td class="col-cmd">terminal</td><td class="col-desc">Comandos de shell y gestión de procesos</td></tr>
+    <tr><td class="col-cmd">file</td><td class="col-desc">Lectura/escritura/búsqueda/parcheo de archivos</td></tr>
+    <tr><td class="col-cmd">code_execution</td><td class="col-desc">Ejecución de Python sandboxed</td></tr>
+    <tr><td class="col-cmd">vision</td><td class="col-desc">Análisis de imágenes</td></tr>
+    <tr><td class="col-cmd">image_gen</td><td class="col-desc">Generación de imágenes con IA</td></tr>
+    <tr><td class="col-cmd">video</td><td class="col-desc">Análisis y generación de video</td></tr>
+    <tr><td class="col-cmd">tts</td><td class="col-desc">Texto a voz</td></tr>
+    <tr><td class="col-cmd">skills</td><td class="col-desc">Exploración y gestión de skills</td></tr>
+    <tr><td class="col-cmd">memory</td><td class="col-desc">Memoria persistente entre sesiones</td></tr>
+    <tr><td class="col-cmd">session_search</td><td class="col-desc">Buscar conversaciones pasadas</td></tr>
+    <tr><td class="col-cmd">delegation</td><td class="col-desc">Delegación de tareas a subagentes</td></tr>
+    <tr><td class="col-cmd">cronjob</td><td class="col-desc">Gestión de tareas programadas</td></tr>
+    <tr><td class="col-cmd">clarify</td><td class="col-desc">Hacer preguntas de clarificación al usuario</td></tr>
+    <tr><td class="col-cmd">messaging</td><td class="col-desc">Envío de mensajes cruzados de plataformas</td></tr>
+    <tr><td class="col-cmd">todo</td><td class="col-desc">Planificación y seguimiento de tareas en sesión</td></tr>
+    <tr><td class="col-cmd">kanban</td><td class="col-desc">Herramientas de cola de trabajo multi-agente (limitado a workers)</td></tr>
+    <tr><td class="col-cmd">debugging</td><td class="col-desc">Herramientas extra de introspección/debug (off por defecto)</td></tr>
+    <tr><td class="col-cmd">safe</td><td class="col-desc">Toolset mínimo y de bajo riesgo para sesiones bloqueadas</td></tr>
+    <tr><td class="col-cmd">spotify</td><td class="col-desc">Control de reproducción y playlists de Spotify</td></tr>
+    <tr><td class="col-cmd">homeassistant</td><td class="col-desc">Control de hogar inteligente (off por defecto)</td></tr>
+    <tr><td class="col-cmd">discord</td><td class="col-desc">Herramientas de integración Discord</td></tr>
+    <tr><td class="col-cmd">discord_admin</td><td class="col-desc">Herramientas de admin/moderación Discord</td></tr>
+    <tr><td class="col-cmd">feishu_doc</td><td class="col-desc">Herramientas de documento Feishu (Lark)</td></tr>
+    <tr><td class="col-cmd">feishu_drive</td><td class="col-desc">Herramientas de drive Feishu (Lark)</td></tr>
+    <tr><td class="col-cmd">yuanbao</td><td class="col-desc">Herramientas de integración Yuanbao</td></tr>
+    <tr><td class="col-cmd">rl</td><td class="col-desc">Herramientas de aprendizaje por refuerzo (off por defecto)</td></tr>
+    <tr><td class="col-cmd">moa</td><td class="col-desc">Mixture of Agents (off por defecto)</td></tr>
+</tbody></table>
+
+<!-- CONFIG SECTIONS -->
+<h2>⚙️ Secciones de Configuración</h2>
+<table>
+    <tbody><tr><th>Sección</th><th>Opciones</th></tr>
+    <tr><td class="col-cmd">model</td><td class="col-desc">default, provider, base_url, api_key, context_length</td></tr>
+    <tr><td class="col-cmd">agent</td><td class="col-desc">max_turns (90), tool_use_enforcement</td></tr>
+    <tr><td class="col-cmd">terminal</td><td class="col-desc">backend (local/docker/ssh/modal), cwd, timeout (180)</td></tr>
+    <tr><td class="col-cmd">compression</td><td class="col-desc">enabled, threshold (0.50), target_ratio (0.20)</td></tr>
+    <tr><td class="col-cmd">display</td><td class="col-desc">skin, tool_progress, show_reasoning, show_cost</td></tr>
+    <tr><td class="col-cmd">stt</td><td class="col-desc">enabled, provider (local/groq/openai/mistral)</td></tr>
+    <tr><td class="col-cmd">tts</td><td class="col-desc">provider (edge/elevenlabs/openai/minimax/mistral/neutts)</td></tr>
+    <tr><td class="col-cmd">memory</td><td class="col-desc">memory_enabled, user_profile_enabled, provider</td></tr>
+    <tr><td class="col-cmd">security</td><td class="col-desc">tirith_enabled, website_blocklist</td></tr>
+    <tr><td class="col-cmd">delegation</td><td class="col-desc">model, provider, base_url, api_key, max_iterations (50), reasoning_effort</td></tr>
+    <tr><td class="col-cmd">checkpoints</td><td class="col-desc">enabled, max_snapshots (50)</td></tr>
+</tbody></table>
+
+<!-- TTS PROVIDERS -->
+<h2>🔊 Proveedores de Voz (TTS)</h2>
+<table>
+    <tbody><tr><th>Proveedor</th><th>Variable de entorno</th><th>Gratuito</th></tr>
+    <tr><td class="col-cmd">Edge TTS</td><td>Ninguna</td><td>✓ (predeterminado)</td></tr>
+    <tr><td class="col-cmd">ElevenLabs</td><td>ELEVENLABS_API_KEY</td><td>Plan gratuito</td></tr>
+    <tr><td class="col-cmd">OpenAI</td><td>VOICE_TOOLS_OPENAI_KEY</td><td>De pago</td></tr>
+    <tr><td class="col-cmd">MiniMax</td><td>MINIMAX_API_KEY</td><td>De pago</td></tr>
+    <tr><td class="col-cmd">Mistral (Voxtral)</td><td>MISTRAL_API_KEY</td><td>De pago</td></tr>
+    <tr><td class="col-cmd">NeuTTS (local)</td><td>Ninguna (pip install neutts[all] + espeak-ng)</td><td>✓</td></tr>
+</tbody></table>
+
+<!-- STT PROVIDERS -->
+<h2>🎤 Proveedores de STT (Voz → Texto)</h2>
+<table>
+    <tbody><tr><th>Proveedor</th><th>Notas</th></tr>
+    <tr><td class="col-cmd">local (faster-whisper)</td><td class="col-desc">Gratis, sin API key. Modelo: tiny/base/small/medium/large-v3</td></tr>
+    <tr><td class="col-cmd">Groq Whisper</td><td class="col-desc">Plan gratuito. Requiere GROQ_API_KEY.</td></tr>
+    <tr><td class="col-cmd">OpenAI Whisper</td><td class="col-desc">De pago. Requiere VOICE_TOOLS_OPENAI_KEY.</td></tr>
+    <tr><td class="col-cmd">Mistral Voxtral</td><td class="col-desc">Requiere MISTRAL_API_KEY.</td></tr>
+</tbody></table>
+
+<!-- RUTAS CLAVE -->
+<h2>📁 Rutas Importantes</h2>
+<table>
+    <tbody><tr><th>Ruta</th><th>Descripción</th></tr>
+    <tr><td class="col-cmd">~/.hermes/config.yaml</td><td class="col-desc">Configuración principal</td></tr>
+    <tr><td class="col-cmd">~/.hermes/.env</td><td class="col-desc">Claves API y secretos</td></tr>
+    <tr><td class="col-cmd">$HERMES_HOME/skills/</td><td class="col-desc">Skills instalados</td></tr>
+    <tr><td class="col-cmd">~/.hermes/sessions/</td><td class="col-desc">Transcripts de sesiones</td></tr>
+    <tr><td class="col-cmd">~/.hermes/logs/</td><td class="col-desc">Logs del gateway y errores</td></tr>
+    <tr><td class="col-cmd">~/.hermes/auth.json</td><td class="col-desc">Tokens OAuth y credential pools</td></tr>
+    <tr><td class="col-cmd">~/.hermes/hermes-agent/</td><td class="col-desc">Código fuente (si está instalado por git)</td></tr>
+</tbody></table>
+
+<p style="text-align:center;color:var(--muted);margin-top:2rem;font-size:0.8rem;">
+Generado desde hermes-agent skill • Hermes Agent v2.1.0 • Nous Research
+</p>
+
+
+</body></html>
